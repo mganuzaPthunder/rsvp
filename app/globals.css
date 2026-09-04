@@ -1036,3 +1036,147 @@ body {
   color: var(--clay);
   word-break: break-all;
 }
+
+/* ------------------------------------------------------------------ *
+ *  Locked replies
+ * ------------------------------------------------------------------ */
+.member--locked {
+  background: linear-gradient(
+    to right,
+    rgba(243, 220, 216, 0.22),
+    rgba(243, 220, 216, 0)
+  );
+}
+
+.locked-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.locked-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--clay-soft);
+}
+
+.locked-note {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--clay);
+}
+
+/* A quieter third button: an ask, not an answer. */
+.choice--ghost {
+  border-style: dashed;
+  font-size: 10px;
+  padding: 8px 14px;
+}
+.choice--ghost:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ------------------------------------------------------------------ *
+ *  Admin
+ * ------------------------------------------------------------------ */
+.admin-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 26px;
+}
+
+.admin-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--clay);
+  font-family: inherit;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.25s var(--ease), background 0.25s var(--ease);
+}
+.admin-button:hover {
+  transform: translateY(-2px);
+  background: var(--blush-soft);
+}
+.admin-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+.admin-button--solid {
+  background: var(--clay);
+  border-color: transparent;
+  color: var(--white);
+}
+.admin-button--solid:hover {
+  background: var(--clay);
+  filter: brightness(1.08);
+}
+
+.admin-flag {
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: rgba(163, 57, 43, 0.08);
+  border: 1px solid rgba(163, 57, 43, 0.25);
+  color: #a3392b;
+  font-size: 12px;
+  line-height: 1.6;
+  text-align: left;
+  margin-bottom: 24px;
+}
+
+.log-entry {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 16px;
+  padding: 12px 28px;
+  border-bottom: 1px solid rgba(138, 75, 60, 0.08);
+  font-size: 13px;
+}
+.log-entry:last-child {
+  border-bottom: 0;
+}
+.log-entry__when {
+  font-size: 11px;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+.log-entry__tag {
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--blush-soft);
+  color: var(--clay-soft);
+}
+.log-entry__tag--update {
+  background: rgba(138, 75, 60, 0.12);
+  color: var(--clay);
+}
+
+.admin-empty {
+  padding: 22px 28px;
+  font-size: 13px;
+  color: var(--ink-soft);
+}

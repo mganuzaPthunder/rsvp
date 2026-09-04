@@ -5,7 +5,7 @@ import GroupRsvp from "@/components/GroupRsvp";
 import Hero from "@/components/Hero";
 import Reveal from "@/components/Reveal";
 import { EVENT, groupByCode } from "@/data/attendees";
-import { getResponses } from "@/lib/store";
+import { getRequests, getResponses, getUnlocks } from "@/lib/store";
 import { buildGroupView } from "@/lib/views";
 
 export const dynamic = "force-dynamic";
@@ -28,8 +28,12 @@ export default async function GroupPage({
   const group = groupByCode(code);
   if (!group) notFound();
 
-  const responses = await getResponses();
-  const view = buildGroupView(group, responses);
+  const [responses, unlocks, requests] = await Promise.all([
+    getResponses(),
+    getUnlocks(),
+    getRequests(),
+  ]);
+  const view = buildGroupView(group, { responses, unlocks, requests });
 
   return (
     <main>

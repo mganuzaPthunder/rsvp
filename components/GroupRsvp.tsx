@@ -10,6 +10,9 @@ type MemberView = {
   name: string;
   status: Status | null;
   updatedAt: string | null;
+  locked: boolean;
+  unlocked: boolean;
+  requested: boolean;
 };
 
 type GroupView = { id: string; name: string; members: MemberView[] };
@@ -31,6 +34,7 @@ export default function GroupRsvp({
   const [group, setGroup] = useState(initialGroup);
   const [query, setQuery] = useState(initialQuery);
   const [saving, setSaving] = useState(false);
+  const [requesting, setRequesting] = useState<string | null>(null);
   const [message, setMessage] = useState<{ tone: "ok" | "error"; text: string } | null>(
     null
   );
@@ -42,6 +46,34 @@ export default function GroupRsvp({
     }
     return seed;
   });
+
+  const requestUnlock = useCallback(
+    async (member: MemberView) => {
+      setRequesting(member.id);
+      try {
+        const res = await fetch("/api/rsvp/request", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code, memberId: member.id }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data?.error ?? "Could not send the request.");
+        setGroup(data.group);
+        setMessage({
+          tone: "ok",
+          text: `Asked the host to unlock ${member.name}'s reply.`,
+        });
+      } catch (error) {
+        setMessage({
+          tone: "error",
+          text: error instanceof Error ? error.message : "Request failed.",
+        });
+      } finally {
+        setRequesting(null);
+      }
+    },
+    [code]
+  );
 
   /** Statuses currently stored on the server, for dirty-checking. */
   const saved = useMemo(() => {
@@ -71,17 +103,21 @@ export default function GroupRsvp({
   }, [initialQuery]);
 
   const dirty = group.members.some(
-    (m) => choices[m.id] && choices[m.id] !== saved[m.id]
+    (m) => !m.locked && choices[m.id] && choices[m.id] !== saved[m.id]
   );
-  const answered = group.members.filter((m) => choices[m.id]).length;
+  const answered = group.members.filter((m) => m.status).length;
+  const openCount = group.members.filter((m) => !m.locked).length;
 
   const submit = useCallback(async () => {
     const updates = group.members
-      .filter((m) => choices[m.id])
+      .filter((m) => !m.locked && choices[m.id] && choices[m.id] !== saved[m.id])
       .map((m) => ({ id: m.id, status: choices[m.id] }));
 
     if (updates.length === 0) {
-      setMessage({ tone: "error", text: "Choose an answer for at least one guest." });
+      setMessage({
+        tone: "error",
+        text: "Nothing to send — choose an answer for someone who hasn't replied yet.",
+      });
       return;
     }
 
@@ -110,7 +146,7 @@ export default function GroupRsvp({
     } finally {
       setSaving(false);
     }
-  }, [group.members, choices, code]);
+  }, [group.members, choices, saved, code]);
 
   return (
     <div className="search">
@@ -148,7 +184,7 @@ export default function GroupRsvp({
 
         {visible.map((member, index) => (
           <div
-            className="member"
+            className={`member${member.locked ? " member--locked" : ""}`}
             key={member.id}
             style={{ animationDelay: `${index * 60}ms` }}
           >
@@ -158,27 +194,57 @@ export default function GroupRsvp({
                 {member.status
                   ? `Replied · ${STATUS_LABEL[member.status]}`
                   : "No reply yet"}
+                {member.unlocked && " · unlocked to change"}
               </span>
             </div>
 
-            <div className="choices" role="group" aria-label={`RSVP for ${member.name}`}>
-              <button
-                type="button"
-                className="choice choice--yes"
-                aria-pressed={choices[member.id] === "confirmed"}
-                onClick={() => setChoices((c) => ({ ...c, [member.id]: "confirmed" }))}
+            {member.locked ? (
+              <div className="locked-actions">
+                <span className="locked-badge" title="Already submitted">
+                  <LockIcon />
+                  Locked
+                </span>
+                {member.requested ? (
+                  <span className="locked-note">Change requested</span>
+                ) : (
+                  <button
+                    type="button"
+                    className="choice choice--ghost"
+                    onClick={() => requestUnlock(member)}
+                    disabled={requesting === member.id}
+                  >
+                    {requesting === member.id ? "Sending…" : "Request a change"}
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div
+                className="choices"
+                role="group"
+                aria-label={`RSVP for ${member.name}`}
               >
-                Confirm
-              </button>
-              <button
-                type="button"
-                className="choice choice--no"
-                aria-pressed={choices[member.id] === "declined"}
-                onClick={() => setChoices((c) => ({ ...c, [member.id]: "declined" }))}
-              >
-                Decline
-              </button>
-            </div>
+                <button
+                  type="button"
+                  className="choice choice--yes"
+                  aria-pressed={choices[member.id] === "confirmed"}
+                  onClick={() =>
+                    setChoices((c) => ({ ...c, [member.id]: "confirmed" }))
+                  }
+                >
+                  Confirm
+                </button>
+                <button
+                  type="button"
+                  className="choice choice--no"
+                  aria-pressed={choices[member.id] === "declined"}
+                  onClick={() =>
+                    setChoices((c) => ({ ...c, [member.id]: "declined" }))
+                  }
+                >
+                  Decline
+                </button>
+              </div>
+            )}
           </div>
         ))}
 
@@ -199,11 +265,26 @@ export default function GroupRsvp({
             onClick={submit}
             disabled={saving || !dirty}
           >
-            {saving ? "Sending…" : dirty ? "Send RSVP" : "All saved"}
+            {saving
+              ? "Sending…"
+              : dirty
+                ? "Send RSVP"
+                : openCount === 0
+                  ? "All replied"
+                  : "All saved"}
           </button>
         </div>
       </div>
     </div>
+  );
+}
+
+function LockIcon() {
+  return (
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="4" y="10" width="16" height="11" rx="2.5" stroke="currentColor" strokeWidth="1.9" />
+      <path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" />
+    </svg>
   );
 }
 

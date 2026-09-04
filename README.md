@@ -12,7 +12,8 @@ or decline. Add `?q=name` to drop someone straight onto their own row:
 | `/<code>` | A group's RSVP page. The code is the only credential. |
 | `/<code>?q=name` | Same page, filtered to that guest and scrolled to the form. |
 | `/` | Banner plus a note explaining that replies need an invite link. |
-| `/admin?key=…` | Private tally, and the copy-ready invite link for every group. |
+| `/admin?key=…` | Private tally, submission record, unlock requests, invite links. |
+| `/api/admin/export?key=…` | The whole guest list as CSV. |
 
 ## Files
 
@@ -26,6 +27,28 @@ or decline. Add `?q=name` to drop someone straight onto their own row:
 | [`components/Butterflies.tsx`](components/Butterflies.tsx) | Glowing fairy butterflies with pixie dust. |
 | [`app/api/rsvp/route.ts`](app/api/rsvp/route.ts) | `GET` group state, `POST` save — both scoped by code. |
 | [`lib/store.ts`](lib/store.ts) | Persistence (Redis REST, with an in-memory dev fallback). |
+| [`app/api/rsvp/request/route.ts`](app/api/rsvp/request/route.ts) | A guest asking to change a locked reply. |
+| [`app/api/admin/route.ts`](app/api/admin/route.ts) | Host-only unlock / re-lock, gated on `ADMIN_KEY`. |
+
+## Records and locking
+
+**Every submission is recorded.** `rsvp:log` keeps an append-only list of who
+replied, what they said, when, and whether it was a first reply or a change —
+newest first, capped at 2000. It shows on `/admin` under "Submission record",
+and `/api/admin/export?key=…` gives you the whole roster as CSV (group, name,
+reply, timestamp, revision count, lock state).
+
+**A reply locks once submitted.** After that the guest sees a Locked badge and
+a "Request a change" button instead of Confirm/Decline. The request appears on
+`/admin`, where you Unlock or Dismiss it. An unlock is one-shot: the RSVP route
+consumes it on the next save, so the reply re-locks immediately and a second
+change needs a second unlock. You can also unlock or re-lock anyone directly
+from the roster, without waiting for them to ask.
+
+This is enforced in [`app/api/rsvp/route.ts`](app/api/rsvp/route.ts), not in
+the UI — anyone holding an invite link can post whatever they like, so the
+check has to be on the server. Re-sending an identical answer is treated as a
+no-op rather than a rejected change, so a double-tap never trips the lock.
 
 ## How the codes work
 
