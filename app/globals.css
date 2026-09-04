@@ -73,7 +73,7 @@ body {
   background-position: center;
   filter: blur(64px) saturate(1.2);
   opacity: 0.4;
-  animation: heroDrift 30s var(--ease) infinite alternate;
+  animation: heroDrift 30s cubic-bezier(0.22, 1, 0.36, 1) infinite alternate;
 }
 
 @keyframes heroDrift {
@@ -153,7 +153,7 @@ body {
 }
 
 .invite > * {
-  animation: inviteIn 0.9s var(--ease) both;
+  animation: inviteIn 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 .invite > *:nth-child(1) { animation-delay: 0.15s; }
 .invite > *:nth-child(2) { animation-delay: 0.7s; }
@@ -176,16 +176,17 @@ body {
   letter-spacing: 0.03em;
   color: var(--clay);
 }
+/* The resting style is visible and the hidden state lives in the keyframe, so
+   a dropped or blocked animation leaves the wordmark on screen rather than
+   invisible. Never gate content on an animation actually running. */
 .invite__letter {
   display: inline-block;
-  opacity: 0;
-  transform: translateY(0.32em) rotate(2deg);
-  animation: letterIn 1s var(--ease) forwards;
+  animation: letterIn 1s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 @keyframes letterIn {
-  to {
-    opacity: 1;
-    transform: none;
+  from {
+    opacity: 0;
+    transform: translateY(0.32em) rotate(2deg);
   }
 }
 
@@ -330,6 +331,7 @@ body {
   border: 1px solid var(--line);
   border-radius: 999px;
   background: rgba(255, 253, 251, 0.9);
+  -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   color: var(--clay);
   font-size: 11px;
@@ -414,6 +416,7 @@ body {
      clears the peek on shorter phones, and landscape makes the term
      negative, so 50px stays the floor. */
   .hero__portrait {
+    padding-bottom: max(50px, calc(100vh - 150vw));
     padding-bottom: max(50px, calc(100svh - 150vw));
   }
   /* The overlay scrim already fades the photo into the page here, and
@@ -438,26 +441,40 @@ body {
     );
   }
 
-  /* The wordmark drops into the empty top right of the artwork, where the
-     printed one used to sit. Positioned against .hero__grid, so it is out of
-     the bottom overlay's flow entirely. */
-  .invite__wordmark {
+  /* The crest takes the clear top right of the artwork; the wordmark drops
+     into the bottom overlay with the rest. Positioned against .hero__grid,
+     so it is out of the overlay's flow entirely. */
+  .invite__crest {
     position: absolute;
     top: 3.5%;
     right: 5%;
     z-index: 4;
-    text-align: center;
+    gap: 10px;
     animation-delay: 0.15s;
   }
+  .invite__crest .medallion {
+    width: 46px;
+    height: 46px;
+  }
+  .invite__crest .medallion__number {
+    font-size: 22px;
+  }
+  .invite__crest .invite__occasion .script {
+    font-size: 22px;
+  }
+  .invite__crest .invite__occasion .tracked {
+    font-size: 7.5px;
+  }
+
   .invite__title {
-    font-size: clamp(52px, 16vw, 92px);
+    font-size: clamp(52px, 15vw, 88px);
   }
   .invite__subtitle {
     font-size: 8px;
     letter-spacing: 0.24em;
   }
 
-  .invite > .invite__crest { animation-delay: 0.55s; }
+  .invite > .invite__wordmark { animation-delay: 0.55s; }
   .invite > .invite__facts { animation-delay: 0.7s; }
   .invite > .invite__cta { animation-delay: 0.85s; }
 
@@ -470,6 +487,7 @@ body {
 /* --------------------- full-bleed hero from 900px --------------------- */
 @media (min-width: 900px) {
   .hero {
+    min-height: 100vh;
     min-height: 100svh;
   }
   /* Photo and invitation share one cell here too, so the artwork can run the
@@ -477,6 +495,7 @@ body {
   .hero__grid {
     grid-template-columns: 1fr;
     grid-template-rows: 1fr;
+    min-height: 100vh;
     min-height: 100svh;
   }
   .invite {
@@ -842,7 +861,7 @@ body {
   border-radius: var(--radius);
   box-shadow: var(--shadow-md);
   overflow: hidden;
-  animation: cardIn 0.7s var(--ease) both;
+  animation: cardIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 @keyframes cardIn {
   from {
@@ -878,7 +897,7 @@ body {
   gap: 14px;
   padding: 18px 28px;
   border-bottom: 1px solid rgba(138, 75, 60, 0.08);
-  animation: memberIn 0.55s var(--ease) both;
+  animation: memberIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 .member:last-child {
   border-bottom: 0;
