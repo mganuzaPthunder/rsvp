@@ -23,8 +23,8 @@ or decline. Add `?q=name` to drop someone straight onto their own row:
 | [`app/[code]/page.tsx`](app/[code]/page.tsx) | The group RSVP page (server-rendered). |
 | [`components/GroupRsvp.tsx`](components/GroupRsvp.tsx) | Name filter, confirm/decline, save. |
 | [`components/Hero.tsx`](components/Hero.tsx) | Debut banner — photo + invitation, two columns on desktop. |
-| [`components/Petals.tsx`](components/Petals.tsx) | Canvas petal fall. |
-| [`components/Butterflies.tsx`](components/Butterflies.tsx) | Glowing fairy butterflies with pixie dust. |
+| [`components/GlitterRain.tsx`](components/GlitterRain.tsx) | Canvas glitter rain. |
+| [`components/Butterflies.tsx`](components/Butterflies.tsx) | Fairy butterflies trailing glitter. |
 | [`app/api/rsvp/route.ts`](app/api/rsvp/route.ts) | `GET` group state, `POST` save — both scoped by code. |
 | [`lib/store.ts`](lib/store.ts) | Persistence (Redis REST, with an in-memory dev fallback). |
 | [`app/api/rsvp/request/route.ts`](app/api/rsvp/request/route.ts) | A guest asking to change a locked reply. |
@@ -127,9 +127,13 @@ no build settings need changing.
 
 ## Animations
 
-Petals and fairy butterflies are decorative and hidden entirely under
-`prefers-reduced-motion: reduce`, along with every transition. Petal count is a
-prop: `<Petals count={38} />` in [`components/Hero.tsx`](components/Hero.tsx).
+The glitter rain and the fairy butterflies are decorative and hidden entirely
+under `prefers-reduced-motion: reduce`, along with every transition. The mote
+count scales with the canvas area (`PX2_PER_MOTE` in
+[`components/GlitterRain.tsx`](components/GlitterRain.tsx)) so a phone gets a
+scatter rather than a blizzard; pass `count` to `<GlitterRain />` to override. Trail density and length are
+`TRAIL_COUNT` and `TRAIL_LIFE` at the top of
+[`components/Butterflies.tsx`](components/Butterflies.tsx).
 
 The banner drifts in to 1.035 and settles back on a 20s loop (`bannerZoom`),
 resting at 1:1 for the first 45% so it reads as an occasional breath. The S of

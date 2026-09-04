@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { EVENT } from "@/data/attendees";
 import Butterflies from "./Butterflies";
-import Petals from "./Petals";
+import GlitterRain from "./GlitterRain";
 
 /**
  * Debut banner.
@@ -27,7 +27,7 @@ export default function Hero({
       <div className="hero__backdrop" aria-hidden="true" />
       <div className="hero__wash" aria-hidden="true" />
 
-      <Petals />
+      <GlitterRain />
       <Butterflies />
 
       <div className="hero__grid">

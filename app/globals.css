@@ -509,7 +509,7 @@ body {
 /* ------------------------------------------------------------------ *
  *  Ambient animation layers
  * ------------------------------------------------------------------ */
-.petal-canvas {
+.glitter-rain {
   position: absolute;
   inset: 0;
   z-index: 3;
@@ -1039,7 +1039,7 @@ body {
     transform: none;
   }
   .butterfly-layer,
-  .petal-canvas {
+  .glitter-rain {
     display: none;
   }
 }
