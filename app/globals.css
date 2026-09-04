@@ -402,8 +402,8 @@ body {
     gap: 10px;
     animation-delay: 0.15s;
   }
-  /* Same clamp as .invite__title, so the name is set at exactly the size of
-     the RSVP wordmark. */
+  /* The name is the headline in this layout, so it keeps the large size;
+     the wordmark below sits smaller so the overlay does not feel packed. */
   .invite__crest .invite__occasion .script {
     font-size: clamp(52px, 15vw, 88px);
     line-height: 0.95;
@@ -416,14 +416,16 @@ body {
      without running into the "same girl, brighter days" printed in the
      artwork's top left, so both step down together and stay matched. */
   @media (max-width: 359px) {
-    .invite__crest .invite__occasion .script,
-    .invite__title {
+    .invite__crest .invite__occasion .script {
       font-size: 44px;
+    }
+    .invite__title {
+      font-size: 34px;
     }
   }
 
   .invite__title {
-    font-size: clamp(52px, 15vw, 88px);
+    font-size: clamp(38px, 11vw, 64px);
   }
   .invite__subtitle {
     font-size: 8px;
