@@ -486,21 +486,40 @@ body {
 
   .invite {
     grid-column: 2;
-    gap: clamp(20px, 3vh, 34px);
-    padding: clamp(40px, 6vh, 72px) clamp(28px, 4vw, 64px);
+    /* Give the column a height to work with and let the four blocks share
+       the slack evenly, rather than clumping in the middle with a fixed gap
+       and leaving a third of the panel empty. */
+    min-height: min(900px, 84svh);
+    justify-content: space-evenly;
+    gap: 0;
+    padding: clamp(20px, 3vh, 40px) clamp(28px, 4vw, 64px);
+  }
+
+  /* The celebrant leads here: her name is the largest thing in the column
+     and the wordmark sits under it in support, not the other way round. */
+  .invite__crest .invite__occasion .script {
+    font-size: clamp(76px, 8.4vw, 158px);
+    line-height: 0.92;
+  }
+  .invite__crest .invite__occasion .tracked {
+    font-size: clamp(11px, 1.05vw, 15px);
+    letter-spacing: 0.34em;
   }
 
   .invite__title {
-    font-size: clamp(64px, 6.5vw, 124px);
+    font-size: clamp(42px, 4.4vw, 84px);
   }
   .invite__subtitle {
     font-size: clamp(9px, 0.85vw, 11px);
   }
   .invite__facts {
-    gap: 10px clamp(30px, 4vw, 56px);
+    gap: 12px clamp(34px, 4.5vw, 64px);
+  }
+  .invite__facts dt {
+    font-size: 10px;
   }
   .invite__facts dd {
-    font-size: 14px;
+    font-size: 16px;
   }
 }
 
