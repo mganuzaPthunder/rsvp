@@ -1,6 +1,5 @@
 import Image from "next/image";
 import { EVENT } from "@/data/attendees";
-import Butterflies from "./Butterflies";
 import GlitterRain from "./GlitterRain";
 
 /**
@@ -28,7 +27,6 @@ export default function Hero({
       <div className="hero__wash" aria-hidden="true" />
 
       <GlitterRain />
-      <Butterflies />
 
       <div className="hero__grid">
         <div className="hero__portrait">

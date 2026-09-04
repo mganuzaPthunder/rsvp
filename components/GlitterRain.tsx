@@ -20,15 +20,15 @@ type Mote = {
 };
 
 /*
- * Rose-gold, not white. The page is cream and pale blush throughout — a white
- * mote with a white halo is invisible on it. Each sprite keeps a hot white
- * core so it still reads as a glint rather than a dot.
+ * Warm off-whites and the palest blush. Deeper rose-gold reads as dark specks
+ * against a cream page rather than as light; the visibility comes from the
+ * white core and the halo, not from saturating the colour.
  */
 const HUES = [
-  "240, 195, 172",
-  "216, 160, 142",
-  "246, 214, 232",
-  "201, 141, 124",
+  "253, 244, 238",
+  "249, 231, 222",
+  "244, 216, 205",
+  "248, 228, 236",
 ];
 
 const SPRITE_PX = 64;
@@ -44,9 +44,9 @@ function buildSprite(rgb: string): HTMLCanvasElement {
 
   const mid = SPRITE_PX / 2;
   const gradient = ctx.createRadialGradient(mid, mid, 0, mid, mid, mid);
-  gradient.addColorStop(0, "rgba(255, 253, 251, 1)");
-  gradient.addColorStop(0.18, `rgba(${rgb}, 0.95)`);
-  gradient.addColorStop(0.5, `rgba(${rgb}, 0.4)`);
+  gradient.addColorStop(0, "rgba(255, 255, 255, 0.95)");
+  gradient.addColorStop(0.2, `rgba(${rgb}, 0.7)`);
+  gradient.addColorStop(0.55, `rgba(${rgb}, 0.22)`);
   gradient.addColorStop(1, `rgba(${rgb}, 0)`);
 
   ctx.fillStyle = gradient;
@@ -86,16 +86,16 @@ export default function GlitterRain({ count }: { count?: number } = {}) {
     const spawn = (initial: boolean): Mote => ({
       x: Math.random() * width,
       y: initial ? Math.random() * height : -20,
-      radius: 1.8 + Math.random() * 4,
+      radius: 1.5 + Math.random() * 3.2,
       speed: 0.18 + Math.random() * 0.62,
       sway: 8 + Math.random() * 30,
       swaySpeed: 0.004 + Math.random() * 0.011,
       swayPhase: Math.random() * Math.PI * 2,
       twinklePhase: Math.random() * Math.PI * 2,
       twinkleSpeed: 0.02 + Math.random() * 0.055,
-      baseAlpha: 0.45 + Math.random() * 0.5,
+      baseAlpha: 0.22 + Math.random() * 0.34,
       sprite: Math.floor(Math.random() * sprites.length),
-      flare: Math.random() < 0.24,
+      flare: Math.random() < 0.1,
     });
 
     const resize = () => {
@@ -133,10 +133,10 @@ export default function GlitterRain({ count }: { count?: number } = {}) {
         ctx.drawImage(sprites[m.sprite], x - glow, m.y - glow, glow * 2, glow * 2);
 
         if (m.flare) {
-          const reach = m.radius * 3.4 * twinkle;
-          ctx.globalAlpha = alpha * 0.55;
-          ctx.strokeStyle = "rgba(255, 253, 251, 0.9)";
-          ctx.lineWidth = 0.8;
+          const reach = m.radius * 3 * twinkle;
+          ctx.globalAlpha = alpha * 0.3;
+          ctx.strokeStyle = "rgba(255, 255, 255, 0.85)";
+          ctx.lineWidth = 0.7;
           ctx.beginPath();
           ctx.moveTo(x - reach, m.y);
           ctx.lineTo(x + reach, m.y);
