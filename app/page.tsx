@@ -50,8 +50,7 @@ function LockedNotice() {
   return (
     <div className="notice">
       <p className="notice__lead">
-        Your invitation came with its own link &mdash; something like{" "}
-        <code>{"yourdomain.com/abcd1234"}</code>.
+        Your invitation came with its own link.
       </p>
       <p>
         Open that link to see your group and reply for everyone in it. Each group

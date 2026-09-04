@@ -5,11 +5,11 @@
 
 export const EVENT = {
   /** The debutante. Shown in script above the RSVP wordmark. */
-  celebrant: "Myleen",
+  celebrant: "Yvonne",
   /** The milestone. Rendered inside the medallion. */
   age: "18",
   /** Who guests should contact if something goes wrong. */
-  hostName: "Myleen",
+  hostName: "Missy",
 
   /**
    * The only wording set in type over the banner. Everything else you see on
