@@ -475,10 +475,10 @@ body {
     align-items: center;
   }
   .hero__grid {
-    width: min(1140px, 92vw);
+    width: min(1240px, 94vw);
     margin: 0 auto;
     padding: clamp(28px, 5vh, 60px) 0;
-    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     align-items: center;
     gap: clamp(30px, 5vw, 56px);
   }
@@ -489,7 +489,11 @@ body {
      height of 1.5x, which is what has to fit the viewport. */
   .hero__portrait {
     width: 100%;
-    max-width: min(46svh, 430px);
+    /* Sized by the height it may occupy, not an arbitrary width: 2:3 means
+       height is 1.5x width, so this is "as tall as fits the viewport once
+       the grid's own padding is taken out". The 560px ceiling stops it
+       ballooning on very tall monitors. */
+    max-width: min(calc((100svh - 110px) / 1.5), 560px);
     margin: 0 auto;
   }
   .hero__frame {
