@@ -1,0 +1,1038 @@
+/* ------------------------------------------------------------------ *
+ *  Tokens
+ * ------------------------------------------------------------------ */
+:root {
+  --cream: #faf4f0;
+  --cream-deep: #f2e7e0;
+  --blush: #f3dcd8;
+  --blush-soft: #f9ebe8;
+  --petal: #edcfc8;
+  --clay: #8a4b3c;
+  --clay-soft: #a9776a;
+  --ink: #5b3d35;
+  --ink-soft: #8b7168;
+  --white: #fffdfb;
+  --line: rgba(138, 75, 60, 0.18);
+  --shadow-sm: 0 2px 10px rgba(138, 75, 60, 0.07);
+  --shadow-md: 0 10px 34px rgba(138, 75, 60, 0.12);
+  --shadow-lg: 0 24px 70px rgba(138, 75, 60, 0.16);
+  --radius: 18px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--font-body), "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+.serif {
+  font-family: var(--font-display), Georgia, serif;
+}
+.script {
+  font-family: var(--font-script), cursive;
+}
+
+.tracked {
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+}
+
+/* ------------------------------------------------------------------ *
+ *  Hero — debut banner
+ *
+ *  Stacked: the whole photo uncropped, wordmark over its top right, and
+ *  the crest / details / button overlapping its lower edge behind a scrim.
+ *  From 900px: photo left, invitation right.
+ * ------------------------------------------------------------------ */
+.hero {
+  position: relative;
+  background: var(--cream);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.hero__backdrop {
+  position: absolute;
+  inset: -8%;
+  z-index: 0;
+  /* Blurred to nothing, so a tiny copy is plenty. */
+  background-image: url("/_next/image?url=%2Fhero.jpg&w=384&q=40");
+  background-size: cover;
+  background-position: center;
+  filter: blur(64px) saturate(1.2);
+  opacity: 0.4;
+  animation: heroDrift 30s var(--ease) infinite alternate;
+}
+
+@keyframes heroDrift {
+  from {
+    transform: scale(1.04) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.12) translate3d(-1.5%, -2%, 0);
+  }
+}
+
+.hero__wash {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    to bottom,
+    rgba(250, 244, 240, 0.3) 0%,
+    rgba(250, 244, 240, 0.08) 24%,
+    rgba(250, 244, 240, 0.45) 76%,
+    var(--cream) 100%
+  );
+}
+
+.hero__grid {
+  position: relative;
+  z-index: 2;
+  display: grid;
+}
+
+.hero__portrait {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 0;
+}
+
+.hero__frame {
+  display: block;
+  /* Must be explicit: as a flex item this would otherwise shrink-wrap to the
+     image's intrinsic width, which srcset density correction makes far
+     smaller than the column it is meant to fill. */
+  width: 100%;
+  /* Clips the slow zoom to the photo's own box, so the scaled image never
+     spills past the card's rounded corners. */
+  overflow: hidden;
+}
+
+.hero__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* Rests at 1:1 for most of the loop, drifts in a little, settles back.
+     Transform lives here and the entry fade on the frame, so the two never
+     fight over the same property. */
+  animation: bannerZoom 20s ease-in-out 2.4s infinite;
+  transform-origin: center 42%;
+}
+
+@keyframes bannerZoom {
+  0%,
+  45%,
+  100% {
+    transform: scale(1);
+  }
+  72% {
+    transform: scale(1.035);
+  }
+}
+
+/* ---------------------------- the invitation ---------------------------- */
+.invite {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.invite > * {
+  animation: inviteIn 0.9s var(--ease) both;
+}
+.invite > *:nth-child(1) { animation-delay: 0.15s; }
+.invite > *:nth-child(2) { animation-delay: 0.7s; }
+.invite > *:nth-child(3) { animation-delay: 0.85s; }
+.invite > *:nth-child(4) { animation-delay: 1s; }
+
+@keyframes inviteIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+/* --- RSVP wordmark: the one thing missing from the artwork --- */
+.invite__title {
+  margin: 0;
+  font-size: clamp(58px, 10vw, 128px);
+  line-height: 0.86;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  color: var(--clay);
+}
+.invite__letter {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(0.32em) rotate(2deg);
+  animation: letterIn 1s var(--ease) forwards;
+}
+@keyframes letterIn {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* The S turns over every few seconds. Perspective is baked into the
+   keyframes rather than set on a parent, because `perspective` only reaches
+   direct children and this span is a grandchild of the heading.
+
+   Timing matters more than it looks: the hold sits in the first segment and
+   the whole turn in the second, so a long cycle with a late delay means the
+   first flip can be most of ten seconds after load and get missed. 1.2s in,
+   then once every 5s. */
+.invite__flip {
+  display: inline-block;
+  animation: flipS 5s cubic-bezier(0.45, 0.05, 0.3, 1) 1.2s infinite;
+}
+@keyframes flipS {
+  0%,
+  62% {
+    transform: perspective(700px) rotateY(0deg);
+  }
+  100% {
+    transform: perspective(700px) rotateY(360deg);
+  }
+}
+
+.invite__subtitle {
+  margin: clamp(8px, 1.4vh, 15px) 0 0;
+  font-size: clamp(8.5px, 1vw, 10.5px);
+  color: var(--clay-soft);
+}
+
+/* --- 18 medallion + occasion --- */
+.invite__crest {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+.medallion {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  flex: none;
+}
+.medallion__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: radial-gradient(
+    circle at 34% 30%,
+    rgba(255, 253, 251, 0.95),
+    rgba(243, 220, 216, 0.6)
+  );
+  box-shadow: var(--shadow-sm);
+}
+/* Second, slowly breathing ring — a little debut sparkle. */
+.medallion::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 1px solid var(--petal);
+  opacity: 0.55;
+  animation: medallionPulse 4s ease-in-out infinite;
+}
+@keyframes medallionPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.07);
+    opacity: 0.15;
+  }
+}
+.medallion__number {
+  position: relative;
+  font-size: 27px;
+  line-height: 1;
+  color: var(--clay);
+  letter-spacing: 0.02em;
+}
+
+.invite__occasion {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 2px;
+}
+.invite__occasion .script {
+  font-size: clamp(23px, 3vw, 31px);
+  line-height: 1;
+  color: var(--clay);
+}
+.invite__occasion .tracked {
+  font-size: clamp(8px, 0.95vw, 9.5px);
+  color: var(--clay-soft);
+}
+
+/* --- when / where --- */
+.invite__facts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px clamp(22px, 5vw, 40px);
+  margin: 0;
+}
+.invite__facts div {
+  min-width: 118px;
+}
+.invite__facts dt {
+  font-size: 8.5px;
+  color: var(--clay-soft);
+  margin-bottom: 4px;
+}
+.invite__facts dd {
+  margin: 0;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+}
+
+/* --- call to action --- */
+.invite__cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.cta-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 34px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 253, 251, 0.9);
+  backdrop-filter: blur(8px);
+  color: var(--clay);
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: transform 0.4s var(--ease), box-shadow 0.4s var(--ease),
+    background 0.4s var(--ease);
+}
+.cta-button:hover {
+  transform: translateY(-3px);
+  background: var(--white);
+  box-shadow: var(--shadow-lg);
+}
+.cta-button:focus-visible {
+  outline: 2px solid var(--clay);
+  outline-offset: 4px;
+}
+
+/* Slow halo pulse so the button reads as "press me". */
+.cta-button::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  border: 1px solid var(--petal);
+  opacity: 0;
+  animation: haloPulse 3.4s ease-out infinite;
+  pointer-events: none;
+}
+@keyframes haloPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  70%,
+  100% {
+    transform: scale(1.16);
+    opacity: 0;
+  }
+}
+
+.cta-hint {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.heart {
+  display: inline-block;
+  color: var(--clay-soft);
+  animation: heartbeat 2.6s ease-in-out infinite;
+}
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  12% { transform: scale(1.22); }
+  24% { transform: scale(1); }
+  36% { transform: scale(1.14); }
+  48% { transform: scale(1); }
+}
+
+/* ------------------- stacked: overlay on the artwork ------------------- */
+@media (max-width: 899px) {
+  /* Photo and invitation share one grid cell, so the invitation can hang off
+     the bottom of the artwork instead of pushing it up the screen. */
+  .hero__grid {
+    grid-template-columns: 1fr;
+  }
+  .hero__portrait,
+  .invite {
+    grid-area: 1 / 1;
+  }
+  /* Extends the banner past the foot of the photo so the overlay sits lower
+     and the next section stops peeking in under it. The scrim ends on solid
+     cream, so the seam is invisible.
+
+     The photo is 2:3 at full width, so it is always 150vw tall; the second
+     term is therefore exactly the shortfall to one screen. A flat 50px only
+     clears the peek on shorter phones, and landscape makes the term
+     negative, so 50px stays the floor. */
+  .hero__portrait {
+    padding-bottom: max(50px, calc(100svh - 150vw));
+  }
+  /* The overlay scrim already fades the photo into the page here, and
+     stacking the section wash on top of it just greys the artwork. */
+  .hero__wash {
+    display: none;
+  }
+
+  .invite {
+    align-self: end;
+    /* Above the fairies, so they drift behind the scrim rather than over
+       the button. */
+    z-index: 5;
+    gap: clamp(14px, 2.6vh, 22px);
+    padding: clamp(56px, 12vh, 104px) 20px clamp(18px, 3vh, 30px);
+    background: linear-gradient(
+      to bottom,
+      rgba(250, 244, 240, 0) 0%,
+      rgba(250, 244, 240, 0.62) 30%,
+      rgba(250, 244, 240, 0.92) 58%,
+      var(--cream) 100%
+    );
+  }
+
+  /* The wordmark drops into the empty top right of the artwork, where the
+     printed one used to sit. Positioned against .hero__grid, so it is out of
+     the bottom overlay's flow entirely. */
+  .invite__wordmark {
+    position: absolute;
+    top: 3.5%;
+    right: 5%;
+    z-index: 4;
+    text-align: center;
+    animation-delay: 0.15s;
+  }
+  .invite__title {
+    font-size: clamp(52px, 16vw, 92px);
+  }
+  .invite__subtitle {
+    font-size: 8px;
+    letter-spacing: 0.24em;
+  }
+
+  .invite > .invite__crest { animation-delay: 0.55s; }
+  .invite > .invite__facts { animation-delay: 0.7s; }
+  .invite > .invite__cta { animation-delay: 0.85s; }
+
+  .cta-hint {
+    font-size: 9px;
+    letter-spacing: 0.14em;
+  }
+}
+
+/* ---------------------- two columns from 900px ---------------------- */
+@media (min-width: 900px) {
+  .hero {
+    min-height: 100svh;
+    display: flex;
+    align-items: center;
+  }
+  .hero__grid {
+    width: min(1140px, 92vw);
+    margin: 0 auto;
+    padding: clamp(28px, 5vh, 60px) 0;
+    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(30px, 5vw, 56px);
+  }
+  /* Cap the COLUMN, never the img. The image stays width:100%/height:auto so
+     its 2:3 ratio is exact and uncropped; sizing the img itself would either
+     hit srcset density correction (max-height can only shrink an auto-width
+     img) or squash it when max-width binds. 2:3 means the cap below yields a
+     height of 1.5x, which is what has to fit the viewport. */
+  .hero__portrait {
+    width: 100%;
+    max-width: min(46svh, 430px);
+    margin: 0 auto;
+  }
+  .hero__frame {
+    border-radius: 6px;
+    box-shadow: var(--shadow-lg);
+  }
+  .invite {
+    gap: clamp(22px, 3.5vh, 36px);
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ *  Ambient animation layers
+ * ------------------------------------------------------------------ */
+.petal-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  /* canvas is a replaced element: `inset: 0` alone leaves it at its
+     intrinsic attribute size, so the box must be sized explicitly. */
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.butterfly-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.butterfly {
+  position: absolute;
+  /* Lane heights come from Butterflies.tsx; the stacked value applies below
+     the two-column breakpoint, where the photo (and the faces) move. */
+  top: var(--fly-top-stacked);
+  width: 58px;
+  height: 58px;
+  will-change: transform;
+  animation-name: flyPath;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  opacity: 0.85;
+}
+
+@media (min-width: 900px) {
+  .butterfly {
+    top: var(--fly-top);
+  }
+}
+
+/* Horizontal travel is on the wrapper, the bob is on the inner element,
+   so the two can run at different speeds without fighting. */
+@keyframes flyPath {
+  from {
+    transform: translate3d(-12vw, 0, 0);
+  }
+  to {
+    transform: translate3d(112vw, 0, 0);
+  }
+}
+
+.butterfly__bob {
+  width: 100%;
+  height: 100%;
+  animation: bob 3.6s ease-in-out infinite;
+}
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-6deg);
+  }
+  50% {
+    transform: translateY(-16px) rotate(8deg);
+  }
+}
+
+.wing {
+  transform-box: fill-box;
+  transform-origin: right center;
+  animation: flapRight 0.26s ease-in-out infinite alternate;
+}
+
+/* Pixie dust: each dot twinkles on its own delay, set inline per circle. */
+.sparkle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: twinkle 2.4s ease-in-out infinite;
+  opacity: 0;
+}
+@keyframes twinkle {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  40% {
+    opacity: 0.95;
+    transform: scale(1);
+  }
+  70% {
+    opacity: 0.25;
+    transform: scale(0.7);
+  }
+}
+.wing--left {
+  transform-origin: left center;
+  animation-name: flapLeft;
+}
+@keyframes flapRight {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(64deg);
+  }
+}
+@keyframes flapLeft {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(-64deg);
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ *  Scroll reveal
+ * ------------------------------------------------------------------ */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.9s var(--ease), transform 0.9s var(--ease);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ------------------------------------------------------------------ *
+ *  RSVP section
+ * ------------------------------------------------------------------ */
+.rsvp {
+  position: relative;
+  padding: clamp(44px, 8vh, 130px) 0 clamp(70px, 12vh, 160px);
+  background: linear-gradient(to bottom, var(--cream), var(--blush-soft));
+}
+
+.shell {
+  width: min(720px, 90vw);
+  margin: 0 auto;
+}
+
+.section-head {
+  text-align: center;
+  margin-bottom: clamp(34px, 6vh, 58px);
+}
+.section-head h2 {
+  margin: 0;
+  font-size: clamp(38px, 7vw, 66px);
+  font-weight: 400;
+  line-height: 1;
+  color: var(--clay);
+}
+.section-head p {
+  margin: 14px 0 0;
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--clay-soft);
+}
+
+.event-facts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 28px;
+  margin-top: 22px;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  color: var(--ink-soft);
+}
+.event-facts span {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.event-facts span + span::before {
+  content: "";
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--petal);
+}
+
+/* --- search --- */
+.search {
+  position: relative;
+}
+.search__field {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 6px 8px 6px 22px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.35s var(--ease), border-color 0.35s var(--ease);
+}
+.search__field:focus-within {
+  border-color: var(--clay-soft);
+  box-shadow: var(--shadow-md);
+}
+.search__field input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  padding: 16px 0;
+  font-family: inherit;
+  font-size: 15px;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+}
+.search__field input::placeholder {
+  color: var(--ink-soft);
+  opacity: 0.65;
+}
+.search__spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--petal);
+  border-top-color: var(--clay);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin-right: 14px;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.search__note {
+  margin: 14px 4px 0;
+  font-size: 12px;
+  color: var(--ink-soft);
+  min-height: 18px;
+}
+
+/* --- disambiguation chips --- */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+.chip {
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--white);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: transform 0.25s var(--ease), background 0.25s var(--ease);
+}
+.chip:hover {
+  transform: translateY(-2px);
+  background: var(--blush-soft);
+}
+.chip small {
+  display: block;
+  color: var(--ink-soft);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+
+/* --- group card --- */
+.group-card {
+  margin-top: 26px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  animation: cardIn 0.7s var(--ease) both;
+}
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+}
+
+.group-card__head {
+  padding: 26px 28px 22px;
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(to bottom, var(--blush-soft), var(--white));
+}
+.group-card__head p {
+  margin: 0;
+  font-size: 10px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--clay-soft);
+}
+.group-card__head h3 {
+  margin: 8px 0 0;
+  font-size: clamp(26px, 4.5vw, 34px);
+  font-weight: 400;
+  color: var(--clay);
+}
+
+.member {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 18px 28px;
+  border-bottom: 1px solid rgba(138, 75, 60, 0.08);
+  animation: memberIn 0.55s var(--ease) both;
+}
+.member:last-child {
+  border-bottom: 0;
+}
+@keyframes memberIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+}
+
+.member__name {
+  font-size: 16px;
+  letter-spacing: 0.01em;
+}
+.member__meta {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-top: 5px;
+}
+
+.choices {
+  display: flex;
+  gap: 8px;
+}
+.choice {
+  padding: 9px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink-soft);
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s var(--ease);
+}
+.choice:hover {
+  border-color: var(--clay-soft);
+  color: var(--clay);
+}
+.choice[aria-pressed="true"] {
+  color: var(--white);
+  border-color: transparent;
+  transform: scale(1.02);
+}
+.choice--yes[aria-pressed="true"] {
+  background: var(--clay);
+}
+.choice--no[aria-pressed="true"] {
+  background: var(--ink-soft);
+}
+.choice:focus-visible {
+  outline: 2px solid var(--clay);
+  outline-offset: 3px;
+}
+
+.group-card__foot {
+  padding: 22px 28px 26px;
+  background: var(--blush-soft);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.submit {
+  padding: 15px 32px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--clay);
+  color: var(--white);
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.3s var(--ease), opacity 0.3s var(--ease);
+}
+.submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+.submit:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.status-line {
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+.status-line--ok {
+  color: var(--clay);
+}
+.status-line--error {
+  color: #a3392b;
+}
+
+.footer {
+  padding: 44px 0 60px;
+  text-align: center;
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--clay-soft);
+  background: var(--blush-soft);
+}
+
+/* ------------------------------------------------------------------ *
+ *  Responsive
+ * ------------------------------------------------------------------ */
+@media (max-width: 720px) {
+  .member {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .group-card__foot {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ *  Reduced motion — keep the layout, drop the movement
+ * ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+  .butterfly-layer,
+  .petal-canvas {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ *  Notice panel (home page without a code, unknown link)
+ * ------------------------------------------------------------------ */
+.notice {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  padding: clamp(26px, 5vw, 40px);
+  text-align: center;
+}
+.notice p {
+  margin: 0 0 12px;
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--ink-soft);
+}
+.notice p:last-child {
+  margin-bottom: 0;
+}
+.notice__lead {
+  font-size: 16px !important;
+  color: var(--ink) !important;
+}
+.notice__soft {
+  font-size: 12px !important;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+  margin-top: 20px !important;
+}
+.notice code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.9em;
+  letter-spacing: 0.04em;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--blush-soft);
+  color: var(--clay);
+}
+
+/* Inline text button — reads as a link, behaves as a button. */
+.linkish {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: var(--clay);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+/* ------------------------------------------------------------------ *
+ *  Admin
+ * ------------------------------------------------------------------ */
+.invite-link {
+  display: block;
+  margin-top: 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  color: var(--clay);
+  word-break: break-all;
+}

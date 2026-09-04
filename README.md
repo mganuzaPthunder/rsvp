@@ -1,0 +1,119 @@
+# RSVP site
+
+A one-page RSVP site. Each group gets its own invite link — `yourdomain.com/3tmn5sbh`
+— which opens the banner and, below it, that group's guest list ready to confirm
+or decline. Add `?q=name` to drop someone straight onto their own row:
+`yourdomain.com/3tmn5sbh?q=carmela`.
+
+## Routes
+
+| Route | What it is |
+| --- | --- |
+| `/<code>` | A group's RSVP page. The code is the only credential. |
+| `/<code>?q=name` | Same page, filtered to that guest and scrolled to the form. |
+| `/` | Banner plus a note explaining that replies need an invite link. |
+| `/admin?key=…` | Private tally, and the copy-ready invite link for every group. |
+
+## Files
+
+| Path | What it does |
+| --- | --- |
+| [`data/attendees.ts`](data/attendees.ts) | **Edit this.** Event copy, groups, invite codes, guest list. |
+| [`app/[code]/page.tsx`](app/[code]/page.tsx) | The group RSVP page (server-rendered). |
+| [`components/GroupRsvp.tsx`](components/GroupRsvp.tsx) | Name filter, confirm/decline, save. |
+| [`components/Hero.tsx`](components/Hero.tsx) | Debut banner — photo + invitation, two columns on desktop. |
+| [`components/Petals.tsx`](components/Petals.tsx) | Canvas petal fall. |
+| [`components/Butterflies.tsx`](components/Butterflies.tsx) | Glowing fairy butterflies with pixie dust. |
+| [`app/api/rsvp/route.ts`](app/api/rsvp/route.ts) | `GET` group state, `POST` save — both scoped by code. |
+| [`lib/store.ts`](lib/store.ts) | Persistence (Redis REST, with an in-memory dev fallback). |
+
+## How the codes work
+
+Every group in `GROUPS` has a `code`. It is the whole access check: `POST /api/rsvp`
+takes the code, resolves it to one group, and refuses any guest id outside it, so a
+link for Team Aurora can never answer for Team Bloom. Codes are matched
+case-insensitively, and startup throws if two groups share one or if a code
+collides with a real path like `admin`.
+
+Treat a code like a password — anyone holding it can answer for everyone in that
+group. That is usually what you want (one link per household or team), but it does
+mean groupmates can edit each other's replies.
+
+Generate fresh codes:
+
+```bash
+npm run codes -- 6
+```
+
+`/<code>` pages are served with `noindex, nofollow` so invite links stay out of
+search results.
+
+### Optional: name search on the home page
+
+`ALLOW_OPEN_SEARCH` in [`data/attendees.ts`](data/attendees.ts) is `false`. Setting
+it to `true` puts a name search on `/` that finds a guest and links them to their
+group page — convenient if people lose their links, but it means anyone can look up
+anyone's code. The `/api/find` endpoint checks the same flag server-side, so
+flipping it off genuinely turns the lookup off.
+
+## Before you deploy
+
+**1. Swap the banner photo.** `public/hero.jpg` is a 2:3 portrait shown whole
+and uncropped at every size. It carries its own printed wording — "same girl,
+brighter days", the script line, "more good times ahead" — and deliberately
+leaves the top right empty, because the RSVP block is set in live type and
+dropped into that gap. If you replace it:
+
+- keep the 2:3 ratio (nothing crops at another ratio, but the column cap in
+  `.hero__portrait` assumes height = 1.5x width when working out what fits);
+- leave the top right clear for the wordmark, or move `.invite__wordmark`;
+- don't print "RSVP" on it — that would be said twice;
+- update the `alt` text in [`components/Hero.tsx`](components/Hero.tsx) to match
+  whatever wording the new photo carries.
+
+**2. Fill in the guest list.** Replace `EVENT` and `GROUPS` in
+[`data/attendees.ts`](data/attendees.ts). Every member needs a stable `id` — that's
+the key replies are stored under, so don't renumber them after links go out. Same
+for codes: changing one invalidates that group's link.
+
+**3. Connect a store.** Without one, replies are kept in memory and vanish when a
+serverless instance recycles. On Vercel: **Storage → Upstash for Redis → Connect**.
+That sets `KV_REST_API_URL` and `KV_REST_API_TOKEN`, which is all
+[`lib/store.ts`](lib/store.ts) looks for (`UPSTASH_REDIS_REST_*` also works).
+
+**4. Set `ADMIN_KEY`** to a long random string, then collect the invite links from
+`/admin?key=<that string>`.
+
+## Run it
+
+```bash
+npm install
+npm run dev
+```
+
+## Deploy
+
+```bash
+npx vercel
+```
+
+Or push to GitHub and import the repo at vercel.com — it's a stock Next.js app, so
+no build settings need changing.
+
+## Animations
+
+Petals and fairy butterflies are decorative and hidden entirely under
+`prefers-reduced-motion: reduce`, along with every transition. Petal count is a
+prop: `<Petals count={38} />` in [`components/Hero.tsx`](components/Hero.tsx).
+
+The banner drifts in to 1.035 and settles back on a 20s loop (`bannerZoom`),
+resting at 1:1 for the first 45% so it reads as an occasional breath. The S of
+RSVP turns over on its own 7s loop (`flipS`). Both live on separate elements
+from their parents' entry animations, because two animations on one element
+would fight over `transform`.
+
+Each fairy has two flight heights in
+[`components/Butterflies.tsx`](components/Butterflies.tsx) — `top` for the
+two-column layout and `topStacked` for phones — because the photo moves between
+the two, and a fairy drifting across someone's face reads as a smudge. If you
+change the photo or the breakpoint, re-check those lanes.
