@@ -218,68 +218,18 @@ body {
   color: var(--clay-soft);
 }
 
-/* --- 18 medallion + occasion --- */
+/* --- celebrant's name, with the occasion centred under it --- */
 .invite__crest {
   display: flex;
-  align-items: center;
   justify-content: center;
-  gap: 14px;
-}
-
-.medallion {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: 58px;
-  height: 58px;
-  flex: none;
-}
-.medallion__ring {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  border: 1px solid var(--line);
-  background: radial-gradient(
-    circle at 34% 30%,
-    rgba(255, 253, 251, 0.95),
-    rgba(243, 220, 216, 0.6)
-  );
-  box-shadow: var(--shadow-sm);
-}
-/* Second, slowly breathing ring — a little debut sparkle. */
-.medallion::after {
-  content: "";
-  position: absolute;
-  inset: -6px;
-  border-radius: 50%;
-  border: 1px solid var(--petal);
-  opacity: 0.55;
-  animation: medallionPulse 4s ease-in-out infinite;
-}
-@keyframes medallionPulse {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 0.5;
-  }
-  50% {
-    transform: scale(1.07);
-    opacity: 0.15;
-  }
-}
-.medallion__number {
-  position: relative;
-  font-size: 27px;
-  line-height: 1;
-  color: var(--clay);
-  letter-spacing: 0.02em;
 }
 
 .invite__occasion {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-  gap: 2px;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
 }
 .invite__occasion .script {
   font-size: clamp(23px, 3vw, 31px);
@@ -452,18 +402,24 @@ body {
     gap: 10px;
     animation-delay: 0.15s;
   }
-  .invite__crest .medallion {
-    width: 46px;
-    height: 46px;
-  }
-  .invite__crest .medallion__number {
-    font-size: 22px;
-  }
+  /* Same clamp as .invite__title, so the name is set at exactly the size of
+     the RSVP wordmark. */
   .invite__crest .invite__occasion .script {
-    font-size: 22px;
+    font-size: clamp(52px, 15vw, 88px);
+    line-height: 0.95;
   }
   .invite__crest .invite__occasion .tracked {
-    font-size: 7.5px;
+    font-size: 9px;
+  }
+
+  /* Below ~360px there isn't room for the name at the wordmark's size
+     without running into the "same girl, brighter days" printed in the
+     artwork's top left, so both step down together and stay matched. */
+  @media (max-width: 359px) {
+    .invite__crest .invite__occasion .script,
+    .invite__title {
+      font-size: 44px;
+    }
   }
 
   .invite__title {

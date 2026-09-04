@@ -69,10 +69,6 @@ export default function Hero({
           </div>
 
           <div className="invite__crest">
-            <span className="medallion" aria-hidden="true">
-              <span className="medallion__ring" />
-              <span className="medallion__number serif">{EVENT.age}</span>
-            </span>
             <span className="invite__occasion">
               <span className="script">{EVENT.celebrant}&rsquo;s</span>
               <span className="tracked">{EVENT.occasion}</span>

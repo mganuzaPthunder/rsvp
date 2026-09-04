@@ -6,8 +6,6 @@
 export const EVENT = {
   /** The debutante. Shown in script above the RSVP wordmark. */
   celebrant: "Yvonne",
-  /** The milestone. Rendered inside the medallion. */
-  age: "18",
   /** Who guests should contact if something goes wrong. */
   hostName: "Missy",
 
