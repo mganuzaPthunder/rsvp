@@ -467,41 +467,97 @@ body {
   }
 }
 
-/* ---------------------- two columns from 900px ---------------------- */
+/* --------------------- full-bleed hero from 900px --------------------- */
 @media (min-width: 900px) {
   .hero {
     min-height: 100svh;
-    display: flex;
-    align-items: center;
   }
+  /* Photo and invitation share one cell here too, so the artwork can run the
+     full width of the screen with the type sitting on top of it. */
   .hero__grid {
-    width: min(1240px, 94vw);
-    margin: 0 auto;
-    padding: clamp(28px, 5vh, 60px) 0;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    align-items: center;
-    gap: clamp(30px, 5vw, 56px);
-  }
-  /* Cap the COLUMN, never the img. The image stays width:100%/height:auto so
-     its 2:3 ratio is exact and uncropped; sizing the img itself would either
-     hit srcset density correction (max-height can only shrink an auto-width
-     img) or squash it when max-width binds. 2:3 means the cap below yields a
-     height of 1.5x, which is what has to fit the viewport. */
-  .hero__portrait {
-    width: 100%;
-    /* Sized by the height it may occupy, not an arbitrary width: 2:3 means
-       height is 1.5x width, so this is "as tall as fits the viewport once
-       the grid's own padding is taken out". The 560px ceiling stops it
-       ballooning on very tall monitors. */
-    max-width: min(calc((100svh - 110px) / 1.5), 560px);
-    margin: 0 auto;
-  }
-  .hero__frame {
-    border-radius: 6px;
-    box-shadow: var(--shadow-lg);
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    min-height: 100svh;
   }
   .invite {
-    gap: clamp(22px, 3.5vh, 36px);
+    grid-area: 1 / 1;
+  }
+
+  /* Taken out of flow deliberately. As a grid item its height would be
+     content-derived, so `height: 100%` on the image below could not resolve
+     and the img fell back to its intrinsic 2160px, stretching the hero to
+     match. Absolute inset:0 gives the chain a definite box to measure. */
+  .hero__portrait {
+    position: absolute;
+    inset: 0;
+  }
+
+  /* The photo is 2:3 and the screen is landscape, so filling it means
+     cropping the top and bottom. The focal point is pulled well above centre
+     to keep the printed line at the top and her face in frame; centring it
+     would cut both. */
+  .hero__portrait,
+  .hero__frame {
+    width: 100%;
+    height: 100%;
+  }
+  .hero__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 6%;
+  }
+
+  /* Both are redundant once the artwork covers the viewport: the blurred
+     copy has no margin left to fill, and the invitation's own scrim does
+     the fading. */
+  .hero__backdrop,
+  .hero__wash {
+    display: none;
+  }
+
+  .invite {
+    align-self: end;
+    /* Above the fairies, so they drift behind the scrim rather than over
+       the button. */
+    z-index: 5;
+    gap: clamp(20px, 3vh, 32px);
+    padding: clamp(90px, 18vh, 200px) 40px clamp(34px, 5vh, 60px);
+    background: linear-gradient(
+      to bottom,
+      rgba(250, 244, 240, 0) 0%,
+      rgba(250, 244, 240, 0.55) 32%,
+      rgba(250, 244, 240, 0.9) 62%,
+      var(--cream) 100%
+    );
+  }
+
+  /* Same idea as the stacked layout: the wordmark drops into the clear top
+     right of the artwork, out of the bottom overlay's flow. */
+  .invite__wordmark {
+    position: absolute;
+    top: 5%;
+    right: 6%;
+    z-index: 4;
+    text-align: center;
+    animation-delay: 0.15s;
+  }
+  .invite__title {
+    font-size: clamp(76px, 8vw, 150px);
+  }
+  .invite__subtitle {
+    font-size: clamp(9px, 0.85vw, 11px);
+  }
+
+  .invite > .invite__crest { animation-delay: 0.55s; }
+  .invite > .invite__facts { animation-delay: 0.7s; }
+  .invite > .invite__cta { animation-delay: 0.85s; }
+
+  .invite__facts {
+    gap: 10px clamp(40px, 6vw, 72px);
+  }
+  .invite__facts dd {
+    font-size: 15px;
   }
 }
 

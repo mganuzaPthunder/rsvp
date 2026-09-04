@@ -81,8 +81,10 @@ flipping it off genuinely turns the lookup off.
 
 ## Before you deploy
 
-**1. Swap the banner photo.** `public/hero.jpg` is a 2:3 portrait shown whole
-and uncropped at every size. It carries its own printed wording — "same girl,
+**1. Swap the banner photo.** `public/hero.jpg` is a 2:3 portrait. Below 900px
+it is shown whole and uncropped at full width; from 900px it covers the
+viewport, which crops the top and bottom (`object-position: 50% 6%` keeps the
+printed top line and her face in frame — retune that if you change the photo). It carries its own printed wording — "same girl,
 brighter days", the script line, "more good times ahead" — and deliberately
 leaves the top right empty, because the RSVP block is set in live type and
 dropped into that gap. If you replace it:
