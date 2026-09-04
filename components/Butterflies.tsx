@@ -47,30 +47,63 @@ const FLIGHTS: Flight[] = [
   },
 ];
 
+/** How long one mote of glitter stays visible, in seconds. */
+const TRAIL_LIFE = 2.4;
+/** Motes per butterfly. Enough to read as a stream, few enough to stay cheap. */
+const TRAIL_COUNT = 7;
+
 export default function Butterflies() {
   return (
     <div className="butterfly-layer" aria-hidden="true">
-      {FLIGHTS.map((flight, index) => (
-        <div
-          key={index}
-          className="butterfly"
-          style={
-            {
-              "--fly-top": `${flight.top}%`,
-              "--fly-top-stacked": `${flight.topStacked}%`,
-              animationDuration: `${flight.duration}s`,
-              animationDelay: `${flight.delay}s`,
-            } as CSSProperties
-          }
-        >
+      {FLIGHTS.map((flight, index) => {
+        /*
+         * Glitter has to hang in the air while the butterfly flies on, but
+         * these motes are its children and travel with it. Drifting them
+         * backwards at exactly the crossing speed cancels that out, so they
+         * appear to stay put and fall as it leaves them behind.
+         *
+         * The wrapper covers 124vw in `duration` seconds, so one mote's life
+         * is worth this much of the screen.
+         */
+        const trail = ((124 / flight.duration) * TRAIL_LIFE).toFixed(2);
+
+        return (
           <div
-            className="butterfly__bob"
-            style={{ animationDuration: `${3.2 + index * 0.5}s` }}
+            key={index}
+            className="butterfly"
+            style={
+              {
+                "--fly-top": `${flight.top}%`,
+                "--fly-top-stacked": `${flight.topStacked}%`,
+                "--trail-x": `${trail}vw`,
+                animationDuration: `${flight.duration}s`,
+                animationDelay: `${flight.delay}s`,
+              } as CSSProperties
+            }
           >
-            <Fairy id={index} {...flight} />
+            {Array.from({ length: TRAIL_COUNT }, (_, i) => (
+              <span
+                key={i}
+                className="glitter"
+                style={
+                  {
+                    "--delay": `${(TRAIL_LIFE / TRAIL_COUNT) * i}s`,
+                    "--fall": `${16 + (i % 4) * 11}px`,
+                    "--mote": `${5 + (i % 3) * 2}px`,
+                  } as CSSProperties
+                }
+              />
+            ))}
+
+            <div
+              className="butterfly__bob"
+              style={{ animationDuration: `${3.2 + index * 0.5}s` }}
+            >
+              <Fairy id={index} {...flight} />
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -167,13 +200,10 @@ function Fairy({
         strokeLinecap="round"
       />
 
-      {/* pixie dust */}
+      {/* a couple of motes still clinging to the wings */}
       <g fill="#fffdfb">
-        <circle className="sparkle" cx="8" cy="30" r="1.4" style={{ animationDelay: "0s" }} />
-        <circle className="sparkle" cx="50" cy="33" r="1.1" style={{ animationDelay: "0.5s" }} />
-        <circle className="sparkle" cx="30" cy="8" r="1" style={{ animationDelay: "0.9s" }} />
-        <circle className="sparkle" cx="18" cy="44" r="0.9" style={{ animationDelay: "1.4s" }} />
-        <circle className="sparkle" cx="42" cy="45" r="1.2" style={{ animationDelay: "1.9s" }} />
+        <circle className="sparkle" cx="30" cy="9" r="1" style={{ animationDelay: "0.3s" }} />
+        <circle className="sparkle" cx="20" cy="42" r="0.9" style={{ animationDelay: "1.2s" }} />
       </g>
     </svg>
   );
